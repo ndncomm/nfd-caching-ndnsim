@@ -6,6 +6,6 @@ cd $NS3_DIR
 
 echo ""
 echo "Running simulations"
-./waf --run="cache-decision-test"
+./waf --run="cache-decision-simulation"
 
 echo "Finished!"
