@@ -6,3 +6,4 @@
 ./single-simulation.sh 40
 ./single-simulation.sh 20
 ./single-simulation.sh 10
+./single-simulation.sh 5

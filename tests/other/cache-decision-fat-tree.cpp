@@ -55,7 +55,6 @@ void run(int argc, char* argv[])
   cmd.Parse(argc, argv);
   std::cout <<  "Parameters: " << params << "\n";
 
-
   int ACCEPT_RATIO = std::stoi(params);
   std::string SIM_NAME = "fat" + std::to_string(ACCEPT_RATIO);
 
@@ -113,8 +112,6 @@ void run(int argc, char* argv[])
 
   // Calculate and install FIBs
   ndn::GlobalRoutingHelper::CalculateRoutes();
-
-
 
 
   std::string folder = "src/ndnSIM/results/";
