@@ -49,7 +49,6 @@ void run(int argc, char* argv[])
   int ACCEPT_RATIO = 100;
   std::string SIM_NAME = "ar" + std::to_string(ACCEPT_RATIO);
 
-
   Config::SetDefault("ns3::PointToPointNetDevice::DataRate", StringValue("1000Mbps"));
   Config::SetDefault("ns3::PointToPointChannel::Delay", StringValue("10ms"));
   Config::SetDefault("ns3::DropTailQueue::MaxPackets", StringValue("20"));
@@ -110,7 +109,7 @@ void run(int argc, char* argv[])
   producerHelper.Install(producer);
 
   std::string folder = "src/ndnSIM/results/";
-  AppDelayTracer::InstallAll(folder + SIM_NAME + "app-delays-trace.txt");
+  AppDelayTracer::InstallAll(folder + SIM_NAME + "app-trace.txt");
   CsTracer::InstallAll(folder + SIM_NAME + "cs-trace.txt", Seconds(1));
   L2RateTracer::InstallAll(folder + SIM_NAME + "drop-trace.txt", Seconds(1));
 
