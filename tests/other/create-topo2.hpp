@@ -50,7 +50,7 @@ public:
 
   virtual Ptr<Node> getProducer()
   {
-    return Names::Find<Node>("Node14");
+    return Names::Find<Node>("Node0");
   }
 };
 
