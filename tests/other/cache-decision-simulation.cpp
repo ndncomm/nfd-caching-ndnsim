@@ -56,7 +56,7 @@ void run(int argc, char* argv[])
 
 
   int ACCEPT_RATIO = std::stoi(params);
-  std::string SIM_NAME = "ar" + std::to_string(ACCEPT_RATIO);
+  std::string SIM_NAME = "fat" + std::to_string(ACCEPT_RATIO);
 
   Config::SetDefault("ns3::PointToPointNetDevice::DataRate", StringValue("1000Mbps"));
   Config::SetDefault("ns3::PointToPointChannel::Delay", StringValue("10ms"));
@@ -66,6 +66,12 @@ void run(int argc, char* argv[])
 
   NodeContainer nodes;
   nodes.Create(5);
+
+//  CreateFatTreeTopo fatTree;
+//  fatTree.setUp();
+//  Ptr<Node> client = fatTree.getClient();
+//  Ptr<Node> producer = fatTree.getProducer();
+
 
   // Connecting nodes using two links
   PointToPointHelper p2p;
