@@ -10,6 +10,17 @@
 
 #include "../../utils/topology/annotated-topology-reader.hpp"
 
+/**
+   examples:
+
+   CreateFatTreeTopo fatTree;
+   fatTree.setUp();
+   Ptr<Node> client = fatTree.getClient();
+   Ptr<Node> producer = fatTree.getProducer();
+
+ */
+
+
 
 namespace ns3 {
 
@@ -17,9 +28,9 @@ namespace ns3 {
 class CreateTopo
 {
 public:
-  virtual void setUp();
-  virtual Ptr<Node> getClient();
-  virtual Ptr<Node> getProducer();
+  virtual void setUp() = 0;
+  virtual Ptr<Node> getClient() = 0;
+  virtual Ptr<Node> getProducer() = 0;
 };
 
 class CreateFatTreeTopo : public CreateTopo

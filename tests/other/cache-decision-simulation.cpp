@@ -99,7 +99,7 @@ void run(int argc, char* argv[])
 
 // Installing applications
   AppHelper consumerHelper1("ns3::ndn::ConsumerZipfMandelbrot");
-  consumerHelper1.SetPrefix("/prefix/A");
+  consumerHelper1.SetPrefix("/prefix");
   consumerHelper1.SetAttribute("Frequency", StringValue("100"));
   consumerHelper1.SetAttribute("StopTime", StringValue("10"));
   consumerHelper1.SetAttribute("NumberOfContents", StringValue("10000"));
@@ -110,6 +110,20 @@ void run(int argc, char* argv[])
   producerHelper.SetPrefix("/prefix");
   producerHelper.SetAttribute("PayloadSize", StringValue("1024"));
   producerHelper.Install(producer);
+
+  // route helper
+
+    // Installing global routing interface on all nodes
+  ndn::GlobalRoutingHelper ndnGlobalRoutingHelper;
+  ndnGlobalRoutingHelper.InstallAll();
+
+  // Add /prefix origins to ndn::GlobalRouter
+  ndnGlobalRoutingHelper.AddOrigins("/prefix", producer);
+
+  // Calculate and install FIBs
+  ndn::GlobalRoutingHelper::CalculateRoutes();
+
+  // tracer
 
   std::string folder = "src/ndnSIM/results/";
   AppDelayTracer::InstallAll(folder + SIM_NAME + "app-trace.txt");
