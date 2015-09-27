@@ -73,7 +73,7 @@ void run(int argc, char* argv[]) {
 	// Getting containers for the consumer/producer
 	Ptr<Node> client = Names::Find<Node>("Node7");
 	NodeContainer consumerNodes;
-	Ptr<Node> consumer = Names::Find<Node>("Node14");
+	Ptr<Node> producer = Names::Find<Node>("Node14");
 
 //  nfd::Forwarder clientForwarder
 	shared_ptr<nfd::Forwarder> clientForwarder = client->GetObject<
@@ -103,13 +103,13 @@ void run(int argc, char* argv[]) {
 	consumerHelper1.SetPrefix("/prefix/A");
 	consumerHelper1.SetAttribute("Frequency", StringValue("50"));
 	consumerHelper1.SetAttribute("StopTime", StringValue("10"));
-	consumerHelper1.Install(consumer);
+	consumerHelper1.Install(client);
 
 // Producer
 	AppHelper producerHelper("ns3::ndn::Producer");
 	producerHelper.SetPrefix("/prefix");
 	producerHelper.SetAttribute("PayloadSize", StringValue("1024"));
-	producerHelper.Install(client);
+	producerHelper.Install(producer);
 //  TestHelper::setLinkError(client->GetDevice(0), 0.1);
 
 //  Simulator::Schedule(Seconds(13.0), TestHelper::printFaceCounter, faceVector);

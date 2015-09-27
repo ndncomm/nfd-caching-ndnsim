@@ -76,7 +76,7 @@ void run(int argc, char* argv[]) {
 	// Getting containers for the consumer/producer
 	Ptr<Node> client = grid.GetNode(3, 3);
 	NodeContainer consumerNodes;
-	Ptr<Node> consumer = grid.GetNode(0, 0);
+	Ptr<Node> producer = grid.GetNode(0, 0);
 
 //  nfd::Forwarder clientForwarder
 	shared_ptr<nfd::Forwarder> clientForwarder = client->GetObject<
@@ -112,7 +112,7 @@ void run(int argc, char* argv[]) {
 	AppHelper producerHelper("ns3::ndn::Producer");
 	producerHelper.SetPrefix("/prefix");
 	producerHelper.SetAttribute("PayloadSize", StringValue("1024"));
-	producerHelper.Install(client);
+	producerHelper.Install(producer);
 
 //  TestHelper::setLinkError(client->GetDevice(0), 0.1);
 
