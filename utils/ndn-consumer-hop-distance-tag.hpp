@@ -19,8 +19,8 @@ public:
   /**
    * @brief Default constructor
    */
-  ConsumerHopDistanceTag()
-    : m_hopDistance(0)
+  ConsumerHopDistanceTag(uint32_t hopDistance = 0)
+    : m_hopDistance(hopDistance)
   {};
 
   void

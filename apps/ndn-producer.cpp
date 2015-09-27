@@ -29,6 +29,12 @@
 #include "model/ndn-l3-protocol.hpp"
 #include "helper/ndn-fib-helper.hpp"
 
+#include "utils/ndn-ns3-packet-tag.hpp"
+#include "utils/ndn-fw-hop-count-tag.hpp"
+#include <ndn-cxx/tag-host.hpp>
+
+#include "utils/ndn-consumer-hop-distance-tag.hpp"
+
 #include <memory>
 
 NS_LOG_COMPONENT_DEFINE("ndn.Producer");
@@ -102,6 +108,17 @@ Producer::OnInterest(shared_ptr<const Interest> interest)
   if (!m_active)
     return;
 
+  uint32_t hopDistance = 0;
+  auto interestNs3PacketTag = interest->getTag<ns3::ndn::Ns3PacketTag>();
+  if (interestNs3PacketTag != nullptr) {
+    FwHopCountTag hopCountTag;
+    if (interestNs3PacketTag->getPacket()->PeekPacketTag(hopCountTag)) {
+      hopDistance = hopCountTag.Get();
+    }
+  } else {
+    std::cout << "[Producer]Error: no hopCountTag" << std::endl;
+  }
+
   Name dataName(interest->getName());
   // dataName.append(m_postfix);
   // dataName.appendVersion();
@@ -111,6 +128,23 @@ Producer::OnInterest(shared_ptr<const Interest> interest)
   data->setFreshnessPeriod(::ndn::time::milliseconds(m_freshness.GetMilliSeconds()));
 
   data->setContent(make_shared< ::ndn::Buffer>(m_virtualPayloadSize));
+
+  // add hopDistanceTag
+  ConsumerHopDistanceTag hopDistanceTag(hopDistance);
+  FwHopCountTag fwTag;
+
+  // creat a empty packet
+  Ptr<Packet> packet = Create<Packet>();
+
+  // add tags on this empty packet
+  packet->AddPacketTag(hopDistanceTag);
+  packet->AddPacketTag(fwTag);
+
+  // create a local tag
+  auto ns3PacketTag = make_shared<Ns3PacketTag>(packet);
+
+  // set tag on this data packet
+  data->setTag<Ns3PacketTag>(ns3PacketTag);
 
   Signature signature;
   SignatureInfo signatureInfo(static_cast< ::ndn::tlv::SignatureTypeValue>(255));
