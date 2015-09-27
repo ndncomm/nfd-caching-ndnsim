@@ -40,7 +40,69 @@
 #include "test-helper.hpp"
 #include "utils/topology/annotated-topology-reader.hpp"
 
+#include "create-topo.hpp"
+
 namespace ns3 {
+
+class CreateTopo
+{
+public:
+  virtual void setUp();
+  virtual Ptr<Node> getClient();
+  virtual Prt<Node> getProducer();
+};
+
+class CreateFatTreeTopo : public CreateTopo
+{
+public:
+  virtual void setUp()
+  {
+    AnnotatedTopologyReader topologyReader("", 25);
+    topologyReader.SetFileName("src/ndnSIM/examples/topologies/topo-fattree.txt");
+    topologyReader.Read();
+  }
+
+  virtual Ptr<Node> getClient()
+  {
+    return Names::Find<Node>("Node7");
+  }
+
+  virtual Ptr<Node> getProducer()
+  {
+    return Names::Find<Node>("Node14");
+  }
+};
+
+class CreateGridTopo
+{
+public:
+  CreateGridTopo(int nCol, int nRow):
+    m_nCol(nCol),m_nRow(nRow)
+  {}
+
+  virtual void setUp()
+  {
+    PointToPointHelper p2p;
+    PointToPointGridHelper grid(m_nCol, m_nRow, p2p);
+    m_client = grid.GetNode(3, 3);
+    m_producer = grid.GetNode(0, 0);
+  }
+
+  virtual Ptr<Node> getClient()
+  {
+    return m_client;
+  }
+
+  virtual Ptr<Node> getProducer()
+  {
+    return m_producer;
+  }
+private:
+  int m_nCol;
+  int m_nRow;
+  Ptr<Node> m_client;
+  Ptr<Node> m_producer;
+};
 
 void run(int argc, char* argv[])
 {
@@ -60,7 +122,8 @@ void run(int argc, char* argv[])
   Config::SetDefault("ns3::PointToPointChannel::Delay", StringValue("10ms"));
   Config::SetDefault("ns3::DropTailQueue::MaxPackets", StringValue("20"));
 
-// Creating nodes
+  // liner topo setup
+
   NodeContainer nodes;
   nodes.Create(5);
 
@@ -71,17 +134,20 @@ void run(int argc, char* argv[])
   p2p.Install(nodes.Get(2), nodes.Get(3));
   p2p.Install(nodes.Get(3), nodes.Get(4));
 
+  Ptr<Node> client = nodes.Get(0);
+  Ptr<Node> r1 = nodes.Get(1);
+  Ptr<Node> r2 = nodes.Get(2);
+  Ptr<Node> r3 = nodes.Get(3);
+  Ptr<Node> producer = nodes.Get(4)
+
+  // liner topo setup ends
+
   // Install NDN stack on all nodes
   ndn::StackHelper ndnHelper;
   ndnHelper.SetOldContentStore("ns3::ndn::cs::Lru", "MaxSize", "100"); // default ContentStore parameters
   ndnHelper.SetDefaultRoutes(true);
   ndnHelper.InstallAll();
 
-  Ptr<Node> client = nodes.Get(0);
-  Ptr<Node> r1 = nodes.Get(1);
-  Ptr<Node> r2 = nodes.Get(2);
-  Ptr<Node> r3 = nodes.Get(3);
-  Ptr<Node> producer = nodes.Get(4);
 
   // Set Policy for all nodes
   for (NodeList::Iterator node = NodeList::Begin(); node != NodeList::End(); node++) {
