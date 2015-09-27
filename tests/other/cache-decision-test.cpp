@@ -66,7 +66,7 @@ void run(int argc, char* argv[])
 
     forwarder->setDecisionPolicy(policy);
     std::cout << forwarder->getDecisionPolicy()->getName() << "\n";
-    std::cout << static_cast<nfd::cs::UniformDecisionPolicy>forwarder->getDecisionPolicy()->getName() << "\n";
+//    std::cout << static_cast<nfd::cs::UniformDecisionPolicy>forwarder->getDecisionPolicy()->getName() << "\n";
   }
 
 // Installing applications //
