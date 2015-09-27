@@ -14,7 +14,7 @@ cd $NS3_DIR
 
 echo ""
 echo "Running simulations"
-./waf --run="cache-decision-simulation --params=$PAR"
-./waf --run="cache-decision-fat-tree --params=$PAR"
+./waf --run="cache-decision-linear --params=$PAR"
+./waf --run="cache-decision-tree --params=$PAR"
 
 echo "Finished!"

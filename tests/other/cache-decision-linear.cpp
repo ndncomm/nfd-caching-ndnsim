@@ -20,7 +20,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <boost/lexical_cast.hpp>
 
 #include "../../helper/ndn-app-helper.hpp"
 #include "../../helper/ndn-scenario-helper.hpp"
@@ -55,26 +54,45 @@ void run(int argc, char* argv[])
   cmd.Parse(argc, argv);
   std::cout <<  "Parameters: " << params << "\n";
 
+
   int ACCEPT_RATIO = std::stoi(params);
-  std::string SIM_NAME = "fat" + std::to_string(ACCEPT_RATIO);
+  std::string SIM_NAME = "lin_unif" + std::to_string(ACCEPT_RATIO);
 
   Config::SetDefault("ns3::PointToPointNetDevice::DataRate", StringValue("1000Mbps"));
   Config::SetDefault("ns3::PointToPointChannel::Delay", StringValue("10ms"));
   Config::SetDefault("ns3::DropTailQueue::MaxPackets", StringValue("20"));
 
-  CreateFatTreeTopo fatTree;
-  fatTree.setUp();
-  // Ptr<Node> client = fatTree.getClient();
-  Ptr<Node> producer = fatTree.getProducer();
+  // liner topo setup
 
-  // Set BestRoute strategy
-  // ndn::StrategyChoiceHelper::InstallAll("/", "/localhost/nfd/strategy/best-route");
+  NodeContainer nodes;
+  nodes.Create(5);
+
+//  CreateFatTreeTopo fatTree;
+//  fatTree.setUp();
+//  Ptr<Node> client = fatTree.getClient();
+//  Ptr<Node> producer = fatTree.getProducer();
+
+  // Connecting nodes using two links
+  PointToPointHelper p2p;
+  p2p.Install(nodes.Get(0), nodes.Get(1));
+  p2p.Install(nodes.Get(1), nodes.Get(2));
+  p2p.Install(nodes.Get(2), nodes.Get(3));
+  p2p.Install(nodes.Get(3), nodes.Get(4));
+
+  Ptr<Node> client = nodes.Get(0);
+  Ptr<Node> r1 = nodes.Get(1);
+  Ptr<Node> r2 = nodes.Get(2);
+  Ptr<Node> r3 = nodes.Get(3);
+  Ptr<Node> producer = nodes.Get(4);
+
+  // liner topo setup ends
 
   // Install NDN stack on all nodes
   ndn::StackHelper ndnHelper;
   ndnHelper.SetOldContentStore("ns3::ndn::cs::Lru", "MaxSize", "100"); // default ContentStore parameters
   ndnHelper.SetDefaultRoutes(true);
   ndnHelper.InstallAll();
+
 
   // Set Policy for all nodes
   for (NodeList::Iterator node = NodeList::Begin(); node != NodeList::End(); node++) {
@@ -90,12 +108,7 @@ void run(int argc, char* argv[])
   consumerHelper1.SetAttribute("Frequency", StringValue("100"));
   consumerHelper1.SetAttribute("StopTime", StringValue("10"));
   consumerHelper1.SetAttribute("NumberOfContents", StringValue("10000"));
-  // consumerHelper1.Install("Node7");
-  // consumerHelper1.Install("Node8");
-  // consumerHelper1.Install("Node9");
-  for (int i = 7; i <= 14; i++) {
-      consumerHelper1.Install(std::string("Node") + boost::lexical_cast<std::string>(i));
-  }
+  consumerHelper1.Install(client);
 
 // Producer
   AppHelper producerHelper("ns3::ndn::Producer");
@@ -103,7 +116,9 @@ void run(int argc, char* argv[])
   producerHelper.SetAttribute("PayloadSize", StringValue("1024"));
   producerHelper.Install(producer);
 
-  // Installing global routing interface on all nodes
+  // route helper
+
+    // Installing global routing interface on all nodes
   ndn::GlobalRoutingHelper ndnGlobalRoutingHelper;
   ndnGlobalRoutingHelper.InstallAll();
 
@@ -113,6 +128,7 @@ void run(int argc, char* argv[])
   // Calculate and install FIBs
   ndn::GlobalRoutingHelper::CalculateRoutes();
 
+  // tracer
 
   std::string folder = "src/ndnSIM/results/";
   AppDelayTracer::InstallAll(folder + SIM_NAME + "app-trace.txt");
