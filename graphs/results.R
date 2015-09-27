@@ -1,6 +1,7 @@
 library(ggplot2)
 library(reshape)
 library(plyr)
+library(doBy)
 
 setwd("~/ccn/ndnSIM2.1/ns-3/src/ndnSIM/graphs")
 
@@ -43,9 +44,20 @@ cs10.hits <- subset(cs10, Type=="CacheHits")
 
 summary(cs20.hits)
 
-summary(cs20)
+cs10.hits.sum <- ddply(cs10.hits, .(Node), summarize, freq=length(Node), tot=sum(Packets))
+cs20.hits.sum <- ddply(cs20.hits, .(Node), summarize, freq=length(Node), tot=sum(Packets))
+cs40.hits.sum <- ddply(cs40.hits, .(Node), summarize, freq=length(Node), tot=sum(Packets))
+cs60.hits.sum <- ddply(cs60.hits, .(Node), summarize, freq=length(Node), tot=sum(Packets))
+cs80.hits.sum <- ddply(cs80.hits, .(Node), summarize, freq=length(Node), tot=sum(Packets))
+cs100.hits.sum <- ddply(cs100.hits, .(Node), summarize, freq=length(Node), tot=sum(Packets))
 
-app100$HopCount[1:1978]
+cs100.hits.sum$scen=100
+cs80.hits.sum$scen=80
+cs60.hits.sum$scen=60
+cs40.hits.sum$scen=40
+cs20.hits.sum$scen=20
+cs10.hits.sum$scen=10
+
 
 min.length <- min(length(app100$HopCount),length(app80$HopCount),length(app60$HopCount),length(app40$HopCount),length(app20$HopCount),length(app10$HopCount))
 min.length
@@ -54,15 +66,20 @@ hopcounts <- melt(data.frame(app100$HopCount[1:min.length],app80$HopCount[1:min.
                              app40$HopCount[1:min.length],app20$HopCount[1:min.length],app10$HopCount[1:min.length]))
 colnames(hopcounts) <- c("Type", "Packets")
 
-cs100.hits$Packets
 
-hits <- melt(data.frame(cs100.hits$Packets,cs80.hits$Packets,cs60.hits$Packets,cs40.hits$Packets,cs20.hits$Packets,cs10.hits$Packets))
-colnames(hits) <- c("Type", "Packets")
+
+# hits <- melt(data.frame(cs100.hits$Packets,cs80.hits$Packets,cs60.hits$Packets,cs40.hits$Packets,cs20.hits$Packets,cs10.hits$Packets))
+# hits <- melt(data.frame(cs10.hits.sum$tot,cs20.hits.sum$tot,cs40.hits.sum$tot,cs60.hits.sum$tot,cs80.hits.sum$tot,cs100.hits.sum$tot))
+hits <- rbind(cs100.hits.sum,cs80.hits.sum,cs60.hits.sum,cs40.hits.sum,cs20.hits.sum,cs10.hits.sum)
+
+hits
+
+hits$sum <- by(hits$tot, hits$Node, sum)
 summary(hits)
 
-# ggplot(hits, aes(x=Type, y=Packets)) + 
-#   geom_boxplot() +
-#   ylab("Avg. Cache Hits [/s]")
+
+g.hits <- ggplot(hits, aes(x=ordered(scen), y=tot/10, fill=Node)) + geom_bar(stat="identity") + 
+ylab("Cache Hit Ratio [%]") + xlab("Cache Admission Rate [%]")
 
 
 # function for computing mean, DS, max and min values
@@ -91,3 +108,7 @@ summary(app10$HopCount)
 #   geom_boxplot() +
 #   ylab("Avg. Delay [s]")
 
+
+pdf("./hits.pdf", height=3, width=4.5)
+g.selpar.req + scale_color_brewer(type="qual", palette="Set1")
+dev.off()
