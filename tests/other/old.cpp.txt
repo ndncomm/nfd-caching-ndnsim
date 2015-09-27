@@ -1,0 +1,9 @@
+
+    
+    std::cout << forwarder->getDecisionPolicy()->getName() << ": ";
+    auto pol = forwarder->getDecisionPolicy();
+    auto unifPol = std::static_pointer_cast<nfd::cs::UniformDecisionPolicy>(pol);
+    std::cout << unifPol->getAcceptRatio() << "\n";
+
+    // Correct acceptance rate:
+    assert(unifPol->getAcceptRatio() == ACCEPT_RATIO);
