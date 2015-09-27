@@ -35,9 +35,9 @@
 #include "../../NFD/daemon/table/cs-decision-policy.hpp"
 #include "../../utils/tracers/ndn-app-delay-tracer.hpp"
 #include "../../utils/tracers/ndn-cs-tracer.hpp"
-#include <ns3-dev/ns3/node-container.h>
-#include <ns3-dev/ns3/point-to-point-helper.h>
-#include <ns3-dev/ns3/config.h>
+#include <ns3/node-container.h>
+#include <ns3/point-to-point-helper.h>
+#include <ns3/config.h>
 #include "../../utils/tracers/l2-rate-tracer.hpp"
 
 namespace ns3 {
