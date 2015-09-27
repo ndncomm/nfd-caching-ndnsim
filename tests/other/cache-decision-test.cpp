@@ -37,17 +37,22 @@
 #include "../../utils/tracers/ndn-cs-tracer.hpp"
 #include <ns3-dev/ns3/node-container.h>
 #include <ns3-dev/ns3/point-to-point-helper.h>
+#include <ns3-dev/ns3/config.h>
+#include "../../utils/tracers/l2-rate-tracer.hpp"
 
 namespace ns3 {
 
 void run(int argc, char* argv[])
 {
 
-//  ScenarioHelper helper;
-//  helper.createTopology(
-//      { { "client", "r1" }, { "r1", "r2" }, { "r2", "r3" }, { "r3", "producer" } });
-//  helper.addRoutes( { { "client", "r1", "/", 1 }, { "r1", "r2", "/", 1 }, { "r2", "r3", "/", 1 }, {
-//      "r3", "producer", "/", 1 }, });
+
+  int ACCEPT_RATIO = 100;
+  std::string SIM_NAME = "ar" + std::to_string(ACCEPT_RATIO);
+
+
+  Config::SetDefault("ns3::PointToPointNetDevice::DataRate", StringValue("1000Mbps"));
+  Config::SetDefault("ns3::PointToPointChannel::Delay", StringValue("10ms"));
+  Config::SetDefault("ns3::DropTailQueue::MaxPackets", StringValue("20"));
 
 // Creating nodes
   NodeContainer nodes;
@@ -75,9 +80,6 @@ void run(int argc, char* argv[])
 //  nfd::Forwarder clientForwarder
   shared_ptr<nfd::Forwarder> clientForwarder = client->GetObject<ndn::L3Protocol>()->getForwarder();
 
-  int ACCEPT_RATIO = 50;
-  std::string SIM_NAME = "ar" + std::to_string(ACCEPT_RATIO);
-
   for (NodeList::Iterator node = NodeList::Begin(); node != NodeList::End(); node++) {
     shared_ptr<nfd::Forwarder> forwarder = (*node)->GetObject<ndn::L3Protocol>()->getForwarder();
     auto policy = make_shared<nfd::cs::UniformDecisionPolicy>(
@@ -94,10 +96,11 @@ void run(int argc, char* argv[])
   }
 
 // Installing applications //
-  AppHelper consumerHelper1("ns3::ndn::ConsumerCbr");
+  AppHelper consumerHelper1("ns3::ndn::ConsumerZipfMandelbrot");
   consumerHelper1.SetPrefix("/prefix/A");
-  consumerHelper1.SetAttribute("Frequency", StringValue("50"));
+  consumerHelper1.SetAttribute("Frequency", StringValue("100"));
   consumerHelper1.SetAttribute("StopTime", StringValue("10"));
+  consumerHelper1.SetAttribute("NumberOfContents", StringValue("10000"));
   consumerHelper1.Install(client);
 
 // Producer
@@ -109,8 +112,10 @@ void run(int argc, char* argv[])
   std::string folder = "src/ndnSIM/results/";
   AppDelayTracer::InstallAll(folder + SIM_NAME + "app-delays-trace.txt");
   CsTracer::InstallAll(folder + SIM_NAME + "cs-trace.txt", Seconds(1));
+  L2RateTracer::InstallAll(folder + SIM_NAME + "drop-trace.txt", Seconds(1));
 
-  Simulator::Stop(Seconds(15.0));
+
+  Simulator::Stop(Seconds(12.0));
   Simulator::Run();
   Simulator::Destroy();
 }
