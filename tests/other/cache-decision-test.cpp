@@ -62,11 +62,17 @@ void run(int argc, char* argv[])
   for (NodeList::Iterator node = NodeList::Begin(); node != NodeList::End(); node++) {
     shared_ptr<nfd::Forwarder> forwarder = (*node)->GetObject<ndn::L3Protocol>()->getForwarder();
     auto policy = make_shared<nfd::cs::UniformDecisionPolicy>(
-        nfd::cs::UniformDecisionPolicy(90));
+        nfd::cs::UniformDecisionPolicy(95));
 
     forwarder->setDecisionPolicy(policy);
-    std::cout << forwarder->getDecisionPolicy()->getName() << "\n";
-//    std::cout << static_cast<nfd::cs::UniformDecisionPolicy>forwarder->getDecisionPolicy()->getName() << "\n";
+    std::cout << forwarder->getDecisionPolicy()->getName() << ": ";
+    auto pol = forwarder->getDecisionPolicy();
+    auto unifPol = std::static_pointer_cast<nfd::cs::UniformDecisionPolicy>(pol);
+    std::cout << unifPol->getAcceptRatio() << "\n";
+
+    // Correct acceptance rate:
+    assert(unifPol->getAcceptRatio() == 95);
+
   }
 
 // Installing applications //
@@ -75,6 +81,7 @@ void run(int argc, char* argv[])
   consumerHelper1.SetAttribute("Frequency", StringValue("50"));
   consumerHelper1.SetAttribute("StopTime", StringValue("10"));
   consumerHelper1.Install(client);
+
 
 // Producer
   AppHelper producerHelper("ns3::ndn::Producer");
