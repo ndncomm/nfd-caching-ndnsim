@@ -5,9 +5,14 @@
 #include <ns3/command-line.h>
 #include <ns3/config.h>
 #include <ns3/names.h>
+#include <ns3/ndnSIM/helper/ndn-app-helper.hpp>
+#include <ns3/ndnSIM/helper/ndn-global-routing-helper.hpp>
 #include <ns3/ndnSIM/model/ndn-common.hpp>
+#include <ns3/ndnSIM/model/ndn-l3-protocol.hpp>
+#include <ns3/ndnSIM/NFD/daemon/fw/forwarder.hpp>
 #include <ns3/ndnSIM/utils/tracers/l2-rate-tracer.hpp>
 #include <ns3/ndnSIM/utils/tracers/ndn-app-delay-tracer.hpp>
+#include <ns3/ndnSIM/utils/tracers/ndn-cs-tracer.hpp>
 #include <ns3/node.h>
 #include <ns3/node-container.h>
 #include <ns3/node-list.h>
@@ -29,13 +34,13 @@
 #include "../../helper/ndn-global-routing-helper.hpp"
 #include "../../helper/ndn-scenario-helper.hpp"
 #include "../../helper/ndn-stack-helper.hpp"
-#include "../../model/ndn-common.hpp"
-#include "../../model/ndn-l3-protocol.hpp"
 #include "../../NFD/daemon/face/face.hpp"
 #include "../../NFD/daemon/face/face-counters.hpp"
 #include "../../NFD/daemon/fw/forwarder.hpp"
+#include "../../NFD/daemon/table/cs-consumer-closest-decision-policy.hpp"
 #include "../../NFD/daemon/table/cs-decision-policy.hpp"
 #include "../../NFD/daemon/table/cs-lcd-decision-policy.hpp"
+#include "../../NFD/daemon/table/cs-producer-closest-decision-policy.hpp"
 #include "../../NFD/daemon/table/cs-uniform-decision-policy.hpp"
 #include "../../utils/tracers/l2-rate-tracer.hpp"
 #include "../../utils/tracers/ndn-app-delay-tracer.hpp"
@@ -54,12 +59,36 @@ void run(int argc, char* argv[])
   // Read optional command-line parameters (e.g., ./waf --run=<> --visualize)
   CommandLine cmd;
   std::string params;
+  std::string policyStr;
+  cmd.AddValue("policy", "Policy", policyStr);
   cmd.AddValue("params", "Parameters", params);
   cmd.Parse(argc, argv);
-  std::cout <<  "Parameters: " << params << "\n";
+  std::cout << "Policy: " << policyStr << "\n";
+  std::cout << "Parameters: " << params << "\n";
 
   int ACCEPT_RATIO = std::stoi(params);
   std::string SIM_NAME = "tree_unif" + std::to_string(ACCEPT_RATIO);
+
+  shared_ptr<nfd::cs::DecisionPolicy> decPolicy;
+  if (policyStr == "lcd") {
+    decPolicy = make_shared<nfd::cs::LcdDecisionPolicy>(nfd::cs::LcdDecisionPolicy());
+  }
+  else if (policyStr == "prodclose") {
+    decPolicy = make_shared<nfd::cs::ProducerClosestDecisionPolicy>(
+        nfd::cs::ProducerClosestDecisionPolicy());
+  }
+  else if (policyStr == "consclose") {
+    decPolicy = make_shared<nfd::cs::ConsumerClosestDecisionPolicy>(
+        nfd::cs::ConsumerClosestDecisionPolicy());
+  }
+  else {
+    policyStr = "unif";
+    decPolicy = make_shared<nfd::cs::UniformDecisionPolicy>(
+        nfd::cs::UniformDecisionPolicy(ACCEPT_RATIO));
+  }
+
+//  auto policy = make_shared<nfd::cs::UniformDecisionPolicy>(
+//      nfd::cs::UniformDecisionPolicy(ACCEPT_RATIO));
 
   Config::SetDefault("ns3::PointToPointNetDevice::DataRate", StringValue("1000Mbps"));
   Config::SetDefault("ns3::PointToPointChannel::Delay", StringValue("10ms"));
@@ -82,9 +111,8 @@ void run(int argc, char* argv[])
   // Set Policy for all nodes
   for (NodeList::Iterator node = NodeList::Begin(); node != NodeList::End(); node++) {
     auto forwarder = (*node)->GetObject<ndn::L3Protocol>()->getForwarder();
-    auto policy = make_shared<nfd::cs::UniformDecisionPolicy>(
-        nfd::cs::UniformDecisionPolicy(ACCEPT_RATIO));
-    forwarder->setDecisionPolicy(policy);
+
+    forwarder->setDecisionPolicy(decPolicy);
   }
 
 // Installing applications
@@ -97,7 +125,7 @@ void run(int argc, char* argv[])
   // consumerHelper1.Install("Node8");
   // consumerHelper1.Install("Node9");
   for (int i = 7; i <= 14; i++) {
-      consumerHelper1.Install(std::string("Node") + boost::lexical_cast<std::string>(i));
+    consumerHelper1.Install(std::string("Node") + boost::lexical_cast<std::string>(i));
   }
 
 // Producer
@@ -116,7 +144,6 @@ void run(int argc, char* argv[])
   // Calculate and install FIBs
   ndn::GlobalRoutingHelper::CalculateRoutes();
 
-
   std::string folder = "src/ndnSIM/results/";
   AppDelayTracer::InstallAll(folder + SIM_NAME + "app-trace.txt");
   CsTracer::InstallAll(folder + SIM_NAME + "cs-trace.txt", Seconds(1));
@@ -132,6 +159,7 @@ void run(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
+
   ns3::run(argc, argv);
   return 0;
 }

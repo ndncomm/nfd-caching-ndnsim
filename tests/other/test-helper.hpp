@@ -13,7 +13,6 @@
 #include <iostream>
 #include <memory>
 #include "../../helper/ndn-global-routing-helper.hpp"
-#include "../../model/ndn-common.hpp"
 #include "../../NFD/daemon/face/face.hpp"
 #include "../../NFD/daemon/face/face-counters.hpp"
 

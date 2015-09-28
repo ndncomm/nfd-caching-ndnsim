@@ -1,40 +1,50 @@
 //#include <ns3/command-line.h>
+
+#include <boost/assert.hpp>
+#include <ns3/command-line.h>
 #include <ns3/names.h>
+#include <ns3/ndnSIM/helper/ndn-app-helper.hpp>
+#include <ns3/ndnSIM/helper/ndn-global-routing-helper.hpp>
+#include <ns3/ndnSIM/helper/ndn-stack-helper.hpp>
+#include <ns3/ndnSIM/helper/ndn-strategy-choice-helper.hpp>
+#include <ns3/ndnSIM/model/ndn-common.hpp>
+#include <ns3/ndnSIM/model/ndn-l3-protocol.hpp>
+#include <ns3/ndnSIM/NFD/daemon/fw/forwarder.hpp>
+#include <ns3/ndnSIM/utils/topology/annotated-topology-reader.hpp>
 #include <ns3/node.h>
+#include <ns3/node-list.h>
 #include <ns3/nstime.h>
 #include <ns3/ptr.h>
 #include <ns3/simulator.h>
 #include <ns3/string.h>
-#include <iostream>
-#include <string>
-
-#include "utils/topology/annotated-topology-reader.hpp"
-#include "helper/ndn-app-helper.hpp"
-#include "helper/ndn-fib-helper.hpp"
-#include "helper/ndn-stack-helper.hpp"
-#include "helper/ndn-strategy-choice-helper.hpp"
-#include "../../model/ndn-l3-protocol.hpp"
-#include "test-helper.hpp"
-
-#include <memory>
-#include <vector>
-#include <boost/assert.hpp>
+#include "ns3/core-module.h"
+#include "ns3/ndnSIM-module.h"
+#include "ns3/network-module.h"
+#include "ns3/point-to-point-layout-module.h"
+#include "ns3/point-to-point-module.h"
+#include <cassert>
 #include <cstdbool>
-#include "../../model/ndn-common.hpp"
+#include <iostream>
+#include <iterator>
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "../../helper/ndn-app-helper.hpp"
+#include "../../helper/ndn-scenario-helper.hpp"
+#include "../../helper/ndn-stack-helper.hpp"
+#include "../../helper/ndn-strategy-choice-helper.hpp"
 #include "../../NFD/daemon/face/face.hpp"
 #include "../../NFD/daemon/face/face-counters.hpp"
-#include <map>
-#include "../../helper/ndn-scenario-helper.hpp"
 #include "../../NFD/daemon/fw/forwarder.hpp"
-#include "../../NFD/daemon/table/cs-uniform-decision-policy.hpp"
+#include "../../NFD/daemon/table/cs-decision-policy.hpp"
 #include "../../NFD/daemon/table/cs-lcd-decision-policy.hpp"
-
-#include <ns3/node-list.h>
-#include "ns3/core-module.h"
-#include "ns3/network-module.h"
-#include "ns3/point-to-point-module.h"
-#include "ns3/point-to-point-layout-module.h"
-#include "ns3/ndnSIM-module.h"
+#include "../../NFD/daemon/table/cs-uniform-decision-policy.hpp"
+#include "../../NFD/model/ndn-l3-protocol.hpp"
+#include "../../utils/topology/annotated-topology-reader.hpp"
+#include "helper/ndn-fib-helper.hpp"
+#include "test-helper.hpp"
 
 namespace ns3 {
 

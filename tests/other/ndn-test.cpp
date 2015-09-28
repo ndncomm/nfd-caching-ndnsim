@@ -19,17 +19,44 @@
 
 // ndn-test.cpp
 
+#include <ns3/command-line.h>
+#include <ns3/config.h>
+#include <ns3/double.h>
+#include <ns3/event-id.h>
+#include <ns3/ndnSIM/helper/ndn-app-helper.hpp>
+#include <ns3/ndnSIM/helper/ndn-fib-helper.hpp>
+#include <ns3/ndnSIM/helper/ndn-stack-helper.hpp>
+#include <ns3/ndnSIM/helper/ndn-strategy-choice-helper.hpp>
+#include <ns3/ndnSIM/model/cs/ndn-content-store.hpp>
+#include <ns3/ndnSIM/model/ndn-l3-protocol.hpp>
+#include <ns3/ndnSIM/NFD/daemon/fw/forwarder.hpp>
+#include <ns3/ndnSIM/utils/mem-usage.hpp>
+#include <ns3/ndnSIM/utils/tracers/l2-rate-tracer.hpp>
+#include <ns3/node-container.h>
+#include <ns3/node-list.h>
+#include <ns3/nstime.h>
+#include <ns3/point-to-point-helper.h>
+#include <ns3/ptr.h>
+#include <ns3/simulator.h>
+#include <ns3/string.h>
+#include <stddef.h>
+#include <sys/time.h>
 #include "ns3/core-module.h"
+#include "ns3/ndnSIM-module.h"
 #include "ns3/network-module.h"
 #include "ns3/point-to-point-module.h"
-#include "ns3/ndnSIM-module.h"
+#include <cstdbool>
+#include <cstdint>
+#include <functional>
+#include <iostream>
+#include <iterator>
+#include <string>
 
-#include <sys/time.h>
-#include "ns3/ndnSIM/utils/mem-usage.hpp"
-#include "ns3/ndnSIM/model/cs/ndn-content-store.hpp"
-#include "ns3/ndnSIM/utils/mem-usage.hpp"
+#include "../../NFD/daemon/table/cs.hpp"
+#include "../../NFD/daemon/table/pit.hpp"
 
 namespace ns3 {
+
 
 /**
  * This scenario simulates a very simple network topology:

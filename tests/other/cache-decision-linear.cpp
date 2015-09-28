@@ -4,6 +4,14 @@
 #include <ns3/command-line.h>
 #include <ns3/config.h>
 #include <ns3/names.h>
+#include <ns3/ndnSIM/helper/ndn-global-routing-helper.hpp>
+#include <ns3/ndnSIM/helper/ndn-stack-helper.hpp>
+#include <ns3/ndnSIM/model/ndn-common.hpp>
+#include <ns3/ndnSIM/model/ndn-l3-protocol.hpp>
+#include <ns3/ndnSIM/NFD/daemon/fw/forwarder.hpp>
+#include <ns3/ndnSIM/utils/tracers/l2-rate-tracer.hpp>
+#include <ns3/ndnSIM/utils/tracers/ndn-app-delay-tracer.hpp>
+#include <ns3/ndnSIM/utils/tracers/ndn-cs-tracer.hpp>
 #include <ns3/node.h>
 #include <ns3/node-container.h>
 #include <ns3/node-list.h>
@@ -12,6 +20,7 @@
 #include <ns3/ptr.h>
 #include <ns3/simulator.h>
 #include <ns3/string.h>
+#include <ns3/node-container.h>
 #include <cassert>
 #include <cstdbool>
 #include <iostream>
@@ -24,8 +33,6 @@
 #include "../../helper/ndn-app-helper.hpp"
 #include "../../helper/ndn-scenario-helper.hpp"
 #include "../../helper/ndn-stack-helper.hpp"
-#include "../../model/ndn-common.hpp"
-#include "../../model/ndn-l3-protocol.hpp"
 #include "../../NFD/daemon/face/face.hpp"
 #include "../../NFD/daemon/face/face-counters.hpp"
 #include "../../NFD/daemon/fw/forwarder.hpp"
@@ -35,12 +42,11 @@
 #include "../../utils/tracers/l2-rate-tracer.hpp"
 #include "../../utils/tracers/ndn-app-delay-tracer.hpp"
 #include "../../utils/tracers/ndn-cs-tracer.hpp"
+#include "create-topo2.hpp"
 #include "helper/ndn-fib-helper.hpp"
 #include "helper/ndn-strategy-choice-helper.hpp"
 #include "test-helper.hpp"
 #include "utils/topology/annotated-topology-reader.hpp"
-
-#include "create-topo2.hpp"
 
 namespace ns3 {
 
